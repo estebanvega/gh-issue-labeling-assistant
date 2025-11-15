@@ -11,9 +11,12 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@toon-format/toon": "^1.0.0",
     "axios": "^1.13.2",
     "commander": "^14.0.2",
     "dotenv": "^17.2.3",
+    "marked": "^15.0.12",
+    "marked-terminal": "^7.3.0",
     "octokit": "^5.0.5",
     "openai": "^6.9.0"
   }
