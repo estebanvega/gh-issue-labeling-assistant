@@ -1,0 +1,19 @@
+{
+  "name": "gh-issue-labeling-assistant",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "axios": "^1.13.2",
+    "commander": "^14.0.2",
+    "dotenv": "^17.2.3",
+    "openai": "^6.9.0"
+  }
+}
