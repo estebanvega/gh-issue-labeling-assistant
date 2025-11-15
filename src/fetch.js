@@ -36,7 +36,7 @@ async function processIssues(issues) {
 
     const response = await openai.responses.create({
         prompt: {
-            "id": "pmpt_6918e75dee9081959ec957cfc814099805b4b81d337e32f7",
+            "id": "PROMPT_ID",
             "version": "2",
             "variables": {
                 "similar_issues": encodedData,
