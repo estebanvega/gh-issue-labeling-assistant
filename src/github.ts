@@ -25,7 +25,7 @@ export async function fetchIssues({
     .map((issue) => ({
       id: issue.id,
       title: issue.title,
-      body: issue.body,
+      body: issue.body?.replace(/(\r\n|\n|\r)/gm, ' ') || '',
       labels: issue.labels,
       created_at: issue.created_at,
     }));

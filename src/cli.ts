@@ -1,8 +1,9 @@
 import 'dotenv/config';
 import { fetchIssues } from './github.ts';
+import { classifyIssue } from './classifier.ts';
 
 (async () => {
-  console.log('Fetching issue and classifying...', process.argv);
+  console.info('Fetching issue and classifying...');
 
   const argv = process.argv.slice(2);
   function getArg(name: string) {
@@ -26,5 +27,7 @@ import { fetchIssues } from './github.ts';
     repo,
     limit,
   });
-  console.log('Fetched issues:', issues);
+
+  const answer = await classifyIssue(issues);
+  console.info('Predicted labels:', answer);
 })();
