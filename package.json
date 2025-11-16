@@ -19,5 +19,8 @@
     "marked-terminal": "^7.3.0",
     "octokit": "^5.0.5",
     "openai": "^6.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1"
   }
 }
