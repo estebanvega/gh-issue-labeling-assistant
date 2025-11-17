@@ -1,9 +1,28 @@
 import { Octokit } from 'octokit';
-import { normalizeText } from './util';
+import { normalizeText } from './util.ts';
 
 const octokit = new Octokit({
   auth: process.env.GH_ACCESS_TOKEN,
 });
+
+export type Issue = {
+  id: number;
+  title: string;
+  body: string;
+  labels: (
+    | string
+    | {
+        id?: number | undefined;
+        node_id?: string | undefined;
+        url?: string | undefined;
+        name?: string | undefined;
+        description?: string | null | undefined;
+        color?: string | null | undefined;
+        default?: boolean | undefined;
+      }
+  )[];
+  created_at: string;
+};
 
 export async function fetchIssues({
   owner,
@@ -13,7 +32,7 @@ export async function fetchIssues({
   owner: string;
   repo: string;
   limit: number;
-}) {
+}): Promise<Issue[]> {
   const response = await octokit.request('GET /repos/{owner}/{repo}/issues', {
     owner,
     repo,
@@ -27,7 +46,9 @@ export async function fetchIssues({
       id: issue.id,
       title: normalizeText(issue.title || ''),
       body: normalizeText(issue.body || ''),
-      labels: issue.labels,
+      labels: (issue.labels || [])
+        .map((l: any) => (typeof l === 'string' ? l : l.name))
+        .filter(Boolean),
       created_at: issue.created_at,
     }));
 
