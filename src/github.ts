@@ -1,4 +1,5 @@
 import { Octokit } from 'octokit';
+import { normalizeText } from './util';
 
 const octokit = new Octokit({
   auth: process.env.GH_ACCESS_TOKEN,
@@ -24,8 +25,8 @@ export async function fetchIssues({
     .filter((issue) => !issue.pull_request)
     .map((issue) => ({
       id: issue.id,
-      title: issue.title,
-      body: issue.body?.replace(/(\r\n|\n|\r)/gm, ' ') || '',
+      title: normalizeText(issue.title || ''),
+      body: normalizeText(issue.body || ''),
       labels: issue.labels,
       created_at: issue.created_at,
     }));
