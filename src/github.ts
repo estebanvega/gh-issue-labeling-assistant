@@ -21,7 +21,7 @@ export type Issue = {
         default?: boolean | undefined;
       }
   )[];
-  created_at: string;
+  url: string;
 };
 
 export async function fetchIssues({
@@ -36,7 +36,7 @@ export async function fetchIssues({
   const response = await octokit.request('GET /repos/{owner}/{repo}/issues', {
     owner,
     repo,
-    per_page: limit,
+    per_page: limit + 1,
     sort: 'created',
   });
 
@@ -49,7 +49,7 @@ export async function fetchIssues({
       labels: (issue.labels || [])
         .map((l: any) => (typeof l === 'string' ? l : l.name))
         .filter(Boolean),
-      created_at: issue.created_at,
+      url: issue.url,
     }));
 
   return issues;
