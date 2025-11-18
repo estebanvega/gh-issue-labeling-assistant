@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { Octokit } from 'octokit';
 import { normalizeText } from './util.ts';
 
@@ -23,6 +24,40 @@ export type Issue = {
   )[];
   url: string;
 };
+
+export async function fetchIssue({
+  owner,
+  repo,
+  issueNumber,
+}: {
+  owner: string;
+  repo: string;
+  issueNumber: number;
+}): Promise<Issue | null> {
+  const response = await octokit.request(
+    'GET /repos/{owner}/{repo}/issues/{issue_number}',
+    {
+      owner,
+      repo,
+      issue_number: issueNumber,
+    }
+  );
+
+  if (response.status !== 200) {
+    console.error(`Failed to fetch issue: ${response.status}`);
+    return null;
+  }
+
+  return {
+    id: response.data.id,
+    title: normalizeText(response.data.title || ''),
+    body: normalizeText(response.data.body || ''),
+    labels: (response.data.labels || [])
+      .map((l: any) => (typeof l === 'string' ? l : l.name))
+      .filter(Boolean),
+    url: response.data.url,
+  };
+}
 
 export async function fetchIssues({
   owner,
@@ -54,3 +89,8 @@ export async function fetchIssues({
 
   return issues;
 }
+
+console.log(
+  'GitHub module loaded.',
+  await fetchIssue({ owner: 'seb-oss', repo: 'green', issueNumber: 2521 })
+);

@@ -1,8 +1,8 @@
 import 'dotenv/config';
 import { Command } from 'commander';
-import { fetchIssues } from './github.ts';
+import { fetchIssue, fetchIssues } from './github.ts';
 import { createEmbeddings } from './embeddings.ts';
-import { upsertVectors } from './chroma.ts';
+import { querySimilar, upsertVectors } from './chroma.ts';
 
 const program = new Command();
 
@@ -57,6 +57,58 @@ program
     console.log(`Upserting into Chroma...`);
     await upsertVectors(items);
     console.log('Index built.');
+  });
+
+program
+  .command('suggest')
+  .option('--owner <owner>', 'repo owner', process.env.REPO_OWNER)
+  .option('--repo <repo>', 'repo name', process.env.REPO_NAME)
+  .option('--issue <num>', 'issue number to classify')
+  .option('--topk <k>', 'how many similar examples to retrieve', '5')
+  .action(async (opts) => {
+    const owner = opts.owner;
+    const repo = opts.repo;
+    const issueNumber = Number(opts.issue);
+    const topk = Number(opts.topk);
+
+    if (!owner || !repo || !issueNumber) {
+      console.error('owner, repo and --issue required');
+      process.exit(1);
+    }
+
+    const issue = await fetchIssue({ owner, repo, issueNumber });
+
+    if (!issue) {
+      console.error(`Failed to fetch issue ${issueNumber}`);
+      process.exit(1);
+    }
+
+    // Build embedding for the new issue
+    const openai = new (await import('openai')).default({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+    const combined = `${issue.title}\n\n${issue.body}`;
+    const embedResp = await openai.embeddings.create({
+      model: process.env.EMBEDDING_MODEL || 'text-embedding-3-large',
+      input: [combined],
+    });
+    const queryEmbedding = embedResp.data[0].embedding;
+    const chromaResp = await querySimilar(queryEmbedding, topk);
+
+    const results = chromaResp.results?.[0] ?? chromaResp;
+    const similar: { document: string; metadata?: any }[] = [];
+    if (results?.documents) {
+      for (let i = 0; i < results.documents.length; i++) {
+        similar.push({
+          document: results.documents[i],
+          metadata: results.metadatas?.[i] ?? {},
+        });
+      }
+    } else {
+      console.warn('Chroma returned unexpected format', chromaResp);
+    }
+
+    console.log(`Found ${similar.length} similar examples. Passing to LLM...`);
   });
 
 program.parse();

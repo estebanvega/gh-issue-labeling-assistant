@@ -16,7 +16,11 @@ cp .env.example .env # edit .env with your keys
 npm install
 ```
 
-## Usage
+## Usage example
 ```bash
-node src/cli.ts --repo seb-oss/green --limit 8
+node src/cli.ts build-index --owner seb-oss --repo green --limit 8
+```
+
+```bash
+node src/cli.ts suggest --owner seb-oss --repo green --issue 2521 --topk 3
 ```
