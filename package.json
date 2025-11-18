@@ -1,15 +1,41 @@
 {
   "name": "gh-issue-labeling-assistant",
   "version": "1.0.0",
-  "description": "",
+  "description": "AI-powered GitHub issue labeling assistant using embeddings, RAG, and LLM classification.",
+  "keywords": [
+    "github",
+    "ai",
+    "issue-labeling",
+    "classification",
+    "rag",
+    "embeddings",
+    "chroma",
+    "llm",
+    "openai",
+    "developer-tools",
+    "automation"
+  ],
+  "homepage": "https://github.com/estebanvega/gh-issue-labeling-assistant#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/estebanvega/gh-issue-labeling-assistant.git"
+  },
+  "bugs": {
+    "url": "https://github.com/estebanvega/gh-issue-labeling-assistant/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Esteban Vega",
+    "url": "https://github.com/estebanvega"
+  },
+  "type": "module",
   "main": "index.js",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "module",
   "dependencies": {
     "@toon-format/toon": "^1.0.0",
     "axios": "^1.13.2",
