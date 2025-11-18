@@ -3,6 +3,7 @@ import { Command } from 'commander';
 import { fetchIssue, fetchIssues } from './github.ts';
 import { createEmbeddings } from './embeddings.ts';
 import { querySimilar, upsertVectors } from './chroma.ts';
+import { classifyWithLLM } from './classifier.ts';
 
 const program = new Command();
 
@@ -97,6 +98,7 @@ program
 
     const results = chromaResp.results?.[0] ?? chromaResp;
     const similar: { document: string; metadata?: any }[] = [];
+
     if (results?.documents) {
       for (let i = 0; i < results.documents.length; i++) {
         similar.push({
@@ -109,6 +111,17 @@ program
     }
 
     console.log(`Found ${similar.length} similar examples. Passing to LLM...`);
+
+    const labelSet = new Set<string>();
+    for (const s of similar) {
+      const labs = s.metadata?.labels ?? [];
+      for (const l of labs) labelSet.add(l);
+    }
+    // Fall back to a small default list
+    const availableLabels = [...labelSet];
+
+    const predicted = await classifyWithLLM(similar, issue, availableLabels);
+    console.log('Predicted labels:', predicted);
   });
 
 program.parse();
