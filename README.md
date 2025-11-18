@@ -6,11 +6,24 @@
 - Optional: GitHub token (to apply labels)
 - Local ChromaDB server (Docker) or hosted Chroma endpoint
 
-## Run Chroma locally
-docker run -p 8000:8000 ghcr.io/chroma-core/chroma:latest
+## Setup DB
+```bash
+docker run -v ./chroma-data:/data -p 8000:8000 chromadb/chroma
+```
 
-## Setup
+```bash
+curl -X POST "http://localhost:8000/api/v2/tenants/local/databases" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"default"}'
+```
 
+```bash
+curl -X POST "http://localhost:8000/api/v2/tenants/local/databases/default/collections" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"issue-labels-3072","dimension":3072}'
+```
+
+## Setup CLI
 ```bash
 cp .env.example .env # edit .env with your keys
 npm install
@@ -18,9 +31,9 @@ npm install
 
 ## Usage example
 ```bash
-node src/cli.ts build-index --owner seb-oss --repo green --limit 8
+node src/cli.ts build-index --owner seb-oss --repo green --limit 50
 ```
 
 ```bash
-node src/cli.ts suggest --owner seb-oss --repo green --issue 2521 --topk 3
+node src/cli.ts suggest --owner seb-oss --repo green --issue 2521 --topk 8
 ```
