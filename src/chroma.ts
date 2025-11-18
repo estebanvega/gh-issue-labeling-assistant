@@ -47,6 +47,3 @@ export async function querySimilar(embedding: number[], topK = 5) {
   const res = await axios.post(url, payload);
   return res.data;
 }
-
-const res = await querySimilar([0.1, 0.2, 0.3]);
-console.log(res);
