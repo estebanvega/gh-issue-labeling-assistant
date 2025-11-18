@@ -25,6 +25,37 @@ export type Issue = {
   url: string;
 };
 
+export type RepoLabel = {
+  id: number;
+  node_id: string;
+  url: string;
+  name: string;
+  description: string | null;
+  color: string;
+  default: boolean;
+};
+
+export async function fetchLabels({
+  owner,
+  repo,
+}: {
+  owner: string;
+  repo: string;
+}): Promise<RepoLabel[]> {
+  const response = await octokit.request('GET /repos/{owner}/{repo}/labels', {
+    owner,
+    repo,
+  });
+
+  if (response.status !== 200) {
+    console.error(`Failed to fetch labels: ${response.status}`);
+    return [];
+  }
+
+  // Response is an array of label objects
+  return response.data as RepoLabel[];
+}
+
 export async function fetchIssue({
   owner,
   repo,
@@ -89,8 +120,3 @@ export async function fetchIssues({
 
   return issues;
 }
-
-console.log(
-  'GitHub module loaded.',
-  await fetchIssue({ owner: 'seb-oss', repo: 'green', issueNumber: 2521 })
-);

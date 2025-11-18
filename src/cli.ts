@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { Command } from 'commander';
-import { fetchIssue, fetchIssues } from './github.ts';
+import { fetchIssue, fetchIssues, fetchLabels } from './github.ts';
 import { createEmbeddings } from './embeddings.ts';
 import { querySimilar, upsertVectors } from './chroma.ts';
 import { classifyWithLLM } from './classifier.ts';
@@ -111,17 +111,28 @@ program
     }
 
     console.log(`Found ${similar.length} similar examples. Passing to LLM...`);
+    console.log('Similar examples:', JSON.stringify(similar, null, 2));
 
-    const labelSet = new Set<string>();
-    for (const s of similar) {
-      const labs = s.metadata?.labels ?? [];
-      for (const l of labs) labelSet.add(l);
-    }
-    // Fall back to a small default list
-    const availableLabels = [...labelSet];
+    const allLabelsJson = await fetchLabels({ owner, repo });
+    const canonicalLabels = Array.isArray(allLabelsJson)
+      ? allLabelsJson.map((l) => l.name)
+      : [];
 
-    const predicted = await classifyWithLLM(similar, issue, availableLabels);
-    console.log('Predicted labels:', predicted);
+    console.log('Canonical labels for LLM:', canonicalLabels);
+
+    const predicted = await classifyWithLLM(similar, issue, canonicalLabels);
+
+    // Normalize predicted labels to match canonicalLabels casing
+    const normalized = Array.isArray(predicted)
+      ? predicted.map((lab) => {
+          const match = canonicalLabels.find(
+            (al) => al.toLowerCase() === String(lab).toLowerCase()
+          );
+          return match || lab;
+        })
+      : predicted;
+
+    console.log('Predicted labels:', normalized);
   });
 
 program.parse();
